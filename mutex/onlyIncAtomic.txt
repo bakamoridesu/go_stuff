@@ -1,0 +1,48 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"sync"
+	"sync/atomic"
+)
+
+var correctRuns = 0
+
+func calculation() {
+	var wg sync.WaitGroup
+	increments := 1000
+	var counter atomic.Int32
+
+	increment := func() {
+		defer wg.Done()
+		counter.Add(1)
+	}
+
+	wg.Add(increments)
+	for i := 0; i < increments; i++ {
+		go increment()
+	}
+
+	wg.Wait()
+
+	if int(counter.Load()) == increments {
+		correctRuns++
+	} else {
+		fmt.Fprintf(os.Stderr, `Incorrect calculations!
+		Expected %d, got %d
+		Correct runs: %d
+		`, counter.Load(), increments, correctRuns)
+		os.Exit(1)
+	}
+}
+
+func main() {
+	runs := 1_000
+
+	for i := 0; i < runs; i++ {
+		calculation()
+	}
+
+	fmt.Println("Calculations were correct!")
+}

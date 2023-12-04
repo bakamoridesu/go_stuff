@@ -1,0 +1,56 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"sync"
+)
+
+func calculations() {
+	counter := 0
+	var wg sync.WaitGroup
+	// var locker sync.Mutex
+	const increments = 10
+	const decrements = 14
+
+	wg.Add(increments + decrements)
+
+	increment := func() {
+		defer wg.Done()
+
+		// locker.Lock()
+		// defer locker.Unlock()
+
+		counter++
+	}
+
+	decrement := func() {
+		defer wg.Done()
+
+		// locker.Lock()
+		// defer locker.Unlock()
+
+		counter--
+	}
+
+	for i := 0; i < increments; i++ {
+		go increment()
+	}
+	for i := 0; i < decrements; i++ {
+		go decrement()
+	}
+	wg.Wait()
+
+	if counter != increments-decrements {
+		fmt.Fprintln(os.Stderr, "Calculations were not correct!", counter, increments-decrements)
+		os.Exit(1)
+	} else {
+		fmt.Println("Calculations were correct!")
+	}
+}
+
+func main() {
+	for i := 0; i < 10; i++ {
+		calculations()
+	}
+}
