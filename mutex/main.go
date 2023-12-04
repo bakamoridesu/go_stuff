@@ -20,7 +20,6 @@ func onlyIncrements() {
 
 		locker.Lock()
 		defer locker.Unlock()
-
 		counter++
 	}
 
